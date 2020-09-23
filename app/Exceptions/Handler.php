@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
+use App\Exceptions\{ModelDuplicateException, ModelNotFoundException};
 class Handler extends ExceptionHandler
 {
     /**
@@ -50,6 +51,33 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        //Model Not Found
+        if ($exception instanceof ModelNotFoundException) {
+            return response()->apiFail([
+                'Code' => $exception->getCode(),
+                'Message' => $exception->getMessage(),
+            ], 404);
+        }
+
+        //Model Duplicate
+        if ($exception instanceof ModelDuplicateException) {
+            return response()->apiFail([
+                'Code' => $exception->getCode(),
+                'Message' => $exception->getMessage(),
+            ], 409);
+        }
+
+        //api validate failed
+        if ($exception instanceof ApiValidationException) {
+            return response()->apiFail([
+                'Code' => $exception->getCode(),
+                'Message' => $exception->getMessage(),
+            ], 400);
+        }
+
+        return response()->apiFail([
+            'Code' => 500,
+            'Message' => 'Internal Server Error',
+        ], 500);
     }
 }

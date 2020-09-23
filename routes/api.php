@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'v1'], function () {
+    Route::group(['prefix' => 'user', 'namespace' => 'user'], function () {
+        Route::post('create', 'UserController@create');     //新增會員
+        Route::post('delete', 'UserController@delete');     //刪除會員
+        Route::post('pwd/change', 'UserController@update'); //修改會員密碼
+        Route::get('login', 'UserController@login');        //驗證帳號密碼
+    });
 });
